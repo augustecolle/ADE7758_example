@@ -25,14 +25,45 @@ void ADE7758::disable(){
 }
 
 unsigned char ADE7758::read8bits(char reg){
-	unsigned char ret;
+	enable();
+    unsigned char b0;
 	delayMicroseconds(50);
 	SPI.transfer(reg);
 	delayMicroseconds(50);
-	ret=SPI.transfer(0x00);
+	b0=SPI.transfer(0x00);
 	delayMicroseconds(50);
-	delay(50);
-	return ret;
+    disable();
+	return b0;
+}
+
+unsigned int ADE7758::read16bits(char reg){
+    enable();
+    unsigned char b1,b0;
+    delayMicroseconds(50);
+    SPI.transfer(reg);
+    delayMicroseconds(50);
+    b1=SPI.transfer(0x00);
+    delayMicroseconds(50);
+    b0=SPI.transfer(0x00);
+    delayMicroseconds(50);
+    disable();
+    return (unsigned int)b1<<8 | (unsigned int)b0;
+}
+
+unsigned long ADE7758::read24bits(char reg){
+    enable();
+    unsigned char b2,b1,b0;
+    delayMicroseconds(50);
+    SPI.transfer(reg);
+    delayMicroseconds(50);
+    b2=SPI.transfer(0x00);
+    delayMicroseconds(50);
+    b1=SPI.transfer(0x00);
+    delayMicroseconds(50);
+    b0=SPI.transfer(0x00);
+    delayMicroseconds(50);
+    disable();
+    return (unsigned long)b2<<16 | (unsigned long)b1<<8 | (unsigned long)b0;
 }
 
 long ADE7758::getVRMS(char phase){
