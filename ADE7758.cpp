@@ -78,7 +78,7 @@ unsigned long ADE7758::read24bits(char reg){
 //is voorlopig voor A geprogrammeerd!
 //To minimize noise synchronize the reading with the zero crossing
 long ADE7758::getVRMS(char phase){
-	long lastupdate = 0;
+    long lastupdate = 0;
     getResetInterruptStatus(); //clear interrupts
     lastupdate = millis();
     while(!(getInterruptStatus() & (ZXA))){ //Nog fase-afhankelijk maken! fout in andere library? Maar hoe corrigeren?

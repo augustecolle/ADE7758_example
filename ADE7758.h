@@ -1,3 +1,8 @@
+//voor als de library per ongeluk twee keer wordt geimporteerd
+#ifndef ADE7758_h
+#define ADE7758_h
+#include "Arduino.h"    
+
 #define AVRMS 0x0D
 #define BVRMS 0x0E
 #define CVRMS 0x0F
@@ -5,7 +10,7 @@
 #define STATUS 0x19
 #define RSTATUS 0x1A
 
-#define ZXA 9
+#define ZXA 9 //waar haalt ge dat RIEN? ziet er mij geen valid register uit. Dat moet de zero crossing zijn voor fase A.
 #define ZXB 10
 #define ZXC 11
 
@@ -30,3 +35,6 @@ class ADE7758{
     long getInterruptStatus();
     long getResetInterruptStatus();
 };
+
+
+#endif
