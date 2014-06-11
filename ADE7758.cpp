@@ -75,6 +75,47 @@ unsigned long ADE7758::read24bits(char reg){
     return (unsigned long)b2<<16 | (unsigned long)b1<<8 | (unsigned long)b0;
 }
 
+
+void ADE7758::write8(char reg, unsigned char data){
+        enable();
+        unsigned char data0 = 0;
+
+        // 8th bit (DB7) of the register address controls the Read/Write mode (Refer to spec page 55 table 13)
+        // For Write -> DB7 = 1  / For Read -> DB7 = 0
+        reg |= WRITE;
+        data0 = (unsigned char)data;
+        
+        delayMicroseconds(50);
+        SPI.transfer((unsigned char)reg);          //register selection
+        delayMicroseconds(50);
+        SPI.transfer((unsigned char)data0);
+        delayMicroseconds(50);
+        disable();
+}
+
+
+void ADE7758::write16(char reg, unsigned int data){
+        enable();
+        unsigned char data0=0,data1=0;
+        // 8th bit (DB7) of the register address controls the Read/Write mode (Refer to spec page 55 table 13)
+        // For Write -> DB7 = 1  / For Read -> DB7 = 0
+        reg |= WRITE;
+        //split data
+        data0 = (unsigned char)data;
+        data1 = (unsigned char)(data>>8);
+        
+        //register selection, we have to send a 1 on the 8th bit to perform a write
+        delayMicroseconds(50);
+        SPI.transfer((unsigned char)reg);    
+        delayMicroseconds(50);    
+        //data send, MSB first
+        SPI.transfer((unsigned char)data1);
+        delayMicroseconds(50);
+        SPI.transfer((unsigned char)data0);  
+        delayMicroseconds(50);
+        disable();
+}
+
 //is voorlopig voor A geprogrammeerd!
 //To minimize noise synchronize the reading with the zero crossing
 long ADE7758::getVRMS(char phase){
