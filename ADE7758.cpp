@@ -1,6 +1,7 @@
 #include "Arduino.h"
 #include <SPI.h>
 #include "ADE7758.h"
+#include <avr/wdt.h>
 
 ADE7758::ADE7758(int _CS){
 	CS = _CS;
@@ -22,6 +23,14 @@ void ADE7758::enable(){
 
 void ADE7758::disable(){
 	digitalWrite(CS,HIGH);
+}
+
+long ADE7758::getInterruptStatus(){
+    return read24bits(STATUS);
+}
+
+long ADE7758::getResetInterruptStatus(){
+    return read24bits(RSTATUS);
 }
 
 unsigned char ADE7758::read8bits(char reg){
@@ -66,6 +75,19 @@ unsigned long ADE7758::read24bits(char reg){
     return (unsigned long)b2<<16 | (unsigned long)b1<<8 | (unsigned long)b0;
 }
 
+//is voorlopig voor A geprogrammeerd!
+//To minimize noise synchronize the reading with the zero crossing
 long ADE7758::getVRMS(char phase){
-	
+	long lastupdate = 0;
+    getResetInterruptStatus(); //clear interrupts
+    lastupdate = millis();
+    while(!(getInterruptStatus() & (ZXA))){ //Nog fase-afhankelijk maken! fout in andere library? Maar hoe corrigeren?
+        //Wait for the selected interrupt (zero crossing interrupt)
+        if((millis()-lastupdate)>100){
+            wdt_reset(); //Betekenis hiervan?? waarom reset je de watchdogtimer?
+            Serial.println("VRMS Timeout");
+            break;
+        }
+    }
+    return read24bits(AVRMS); //Nog fase-afhankelijk maken, zelfde opmerking
 }
