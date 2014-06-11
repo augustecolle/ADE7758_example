@@ -12,9 +12,9 @@
 #define STATUS 0x19
 #define RSTATUS 0x1A
 
-#define ZXA 9 //waar haalt ge dat RIEN? ziet er mij geen valid register uit. Dat moet de zero crossing zijn voor fase A.
-#define ZXB 10
-#define ZXC 11
+#define ZXA 0x0200 //waar haalt ge dat RIEN? ziet er mij geen valid register uit. Dat moet de zero crossing zijn voor fase A. Edit: gevonden, tmoet een mask zijn want ge doet een & operator in uw functie voor VRMSA. In de ADE7758 bit positie 9 dus 0x0200
+#define ZXB 0x0400
+#define ZXC 0x0800
 
 #define PHASE_A 0
 
