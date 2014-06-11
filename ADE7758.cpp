@@ -118,6 +118,11 @@ void ADE7758::write16(char reg, unsigned int data){
 
 //is voorlopig voor A geprogrammeerd!
 //To minimize noise synchronize the reading with the zero crossing
+//Auguste denkt: als er een interrupt wordt gegenereerd omdat fase A een
+//zerocrossing doet moet ge op dat moment de uitlezing doen. Als de
+//zerocrossing te lang duurt doet ge een reset van de processor met behulp van
+//wtd (de processor is bezig met te wachten op de zerocrossing en heeft een
+//hulp van buitenaf nodig om te onderbreken).
 long ADE7758::getVRMS(char phase){
     long lastupdate = 0;
     getResetInterruptStatus(); //clear interrupts
