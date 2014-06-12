@@ -130,8 +130,8 @@ long ADE7758::getVRMS(char phase){
     while(!(getInterruptStatus() & (ZXA<<phase))){ //Fase afhankelijk gemaakt, mask shiften met 0,1 of 2
         //Wait for the selected interrupt (zero crossing interrupt)
         if((millis()-lastupdate)>100){
-            Serial.println("VRMS Timeout");
-            break;
+            Serial.println("VRMS Timeout: NaN");
+			return -1;
         }
     }
     return read24bits(AVRMS+phase); //Fase afhankelijk gemaakt, register AVRMS+0,1 of 2.
