@@ -130,7 +130,6 @@ long ADE7758::getVRMS(char phase){
     while(!(getInterruptStatus() & (ZXA))){ //Nog fase-afhankelijk maken! fout in andere library? Maar hoe corrigeren?
         //Wait for the selected interrupt (zero crossing interrupt)
         if((millis()-lastupdate)>100){
-            wdt_reset(); //Betekenis hiervan?? waarom reset je de watchdogtimer?
             Serial.println("VRMS Timeout");
             break;
         }
