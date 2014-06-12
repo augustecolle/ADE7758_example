@@ -127,12 +127,12 @@ long ADE7758::getVRMS(char phase){
     long lastupdate = 0;
     getResetInterruptStatus(); //clear interrupts
     lastupdate = millis();
-    while(!(getInterruptStatus() & (ZXA))){ //Nog fase-afhankelijk maken! fout in andere library? Maar hoe corrigeren?
+    while(!(getInterruptStatus() & (ZXA<<phase))){ //Fase afhankelijk gemaakt, mask shiften met 0,1 of 2
         //Wait for the selected interrupt (zero crossing interrupt)
         if((millis()-lastupdate)>100){
             Serial.println("VRMS Timeout");
             break;
         }
     }
-    return read24bits(AVRMS); //Nog fase-afhankelijk maken, zelfde opmerking
+    return read24bits(AVRMS+phase); //Fase afhankelijk gemaakt, register AVRMS+0,1 of 2.
 }

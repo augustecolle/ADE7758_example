@@ -17,6 +17,8 @@
 #define ZXC 0x0800
 
 #define PHASE_A 0
+#define PHASE_B 1
+#define PHASE_C 2
 
 class ADE7758{
   public:
