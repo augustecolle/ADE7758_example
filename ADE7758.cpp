@@ -116,23 +116,36 @@ void ADE7758::write16(char reg, unsigned int data){
         disable();
 }
 
-//is voorlopig voor A geprogrammeerd!
+
 //To minimize noise synchronize the reading with the zero crossing
-//Auguste denkt: als er een interrupt wordt gegenereerd omdat fase A een
-//zerocrossing doet moet ge op dat moment de uitlezing doen. Als de
-//zerocrossing te lang duurt doet ge een reset van de processor met behulp van
-//wtd (de processor is bezig met te wachten op de zerocrossing en heeft een
-//hulp van buitenaf nodig om te onderbreken).
 long ADE7758::getVRMS(char phase){
+    int N = 20; //aantal lezingen voor gemiddelde waarde
+    unsigned long VRMS = 0;
     long lastupdate = 0;
-    getResetInterruptStatus(); //clear interrupts
-    lastupdate = millis();
-    while(!(getInterruptStatus() & (ZXA<<phase))){ //Fase afhankelijk gemaakt, mask shiften met 0,1 of 2
-        //Wait for the selected interrupt (zero crossing interrupt)
-        if((millis()-lastupdate)>100){
-            Serial.println("VRMS Timeout: NaN");
-			return -1;
+    for (int i = 0; i<N; i++){
+        getResetInterruptStatus(); //clear interrupts
+        lastupdate = millis();
+        while(!(getInterruptStatus() & (ZXA<<phase))){ //Fase afhankelijk gemaakt, mask shiften met 0,1 of 2
+            //Wait for the selected interrupt (zero crossing interrupt)
+            if((millis()-lastupdate)>100){
+                Serial.println("VRMS Timeout: NaN");
+                            return -1;
+            }
         }
+        VRMS += read24bits(AVRMS+phase);
     }
-    return read24bits(AVRMS+phase); //Fase afhankelijk gemaakt, register AVRMS+0,1 of 2.
+    return VRMS/N; //Fase afhankelijk gemaakt, register AVRMS+0,1 of 2.
+}
+
+
+void ADE7758::calibrateVOffset(char phase){
+    //zie datasheet pagina 55    
+    int Vnom = 230; //[V] aan te passen per toepassing
+    int Vfsc = 400; //[V] full scale spanning
+    int Vmin = Vfsc/20;
+    int VRMSmin = 0; //[V] meting bij Vmin
+    int VRMSnom = 0; //[V] meting bij Vnom
+
+    int offset = 1/64*(Vnom*VRMSmin-Vmin*VRMSnom)/(Vmin-Vnom);
+    write8(AVRMSOS+phase, offset);
 }

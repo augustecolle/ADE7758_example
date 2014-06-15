@@ -8,11 +8,17 @@
 #define AVRMS 0x0D
 #define BVRMS 0x0E
 #define CVRMS 0x0F
+#define AVRMSOS 0x33 //voor calibratie
+#define BVRMSOS 0x34
+#define CVRMSOS 0x35
+
+#define LCYCMODE 0x17 //The functionalities involved the line-cycle accumulation mode in the ADE7758 are defined by writing to the LCYCMODE register. Voor de zerocrossings te tellen moet de ZX per fase hoog gezet worden van dit register (voor alle fases 0x38)
+#define MASK 0x18 //When an interrupt event occurs in the ADE7758, the IRQ logic output goes active low if the mask bit for this event is Logic 1 in the MASK register.
 
 #define STATUS 0x19
 #define RSTATUS 0x1A
 
-#define ZXA 0x0200 //waar haalt ge dat RIEN? ziet er mij geen valid register uit. Dat moet de zero crossing zijn voor fase A. Edit: gevonden, tmoet een mask zijn want ge doet een & operator in uw functie voor VRMSA. In de ADE7758 bit positie 9 dus 0x0200
+#define ZXA 0x0200 
 #define ZXB 0x0400
 #define ZXC 0x0800
 
@@ -24,7 +30,7 @@ class ADE7758{
   public:
     ADE7758(int _CS);
     void begin();
-	long getVRMS(char phase);
+    long getVRMS(char phase);
     
     //Later in private te plaatsen
     unsigned char read8bits(char reg);
@@ -37,9 +43,10 @@ class ADE7758{
 	
   private:
     int CS;
-		
+
     void enable();
     void disable();
+    void calibrateVOffset(char phase);
     long getInterruptStatus();
     long getResetInterruptStatus();
 };
