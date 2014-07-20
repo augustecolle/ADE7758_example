@@ -117,8 +117,6 @@ void ADE7758::write16(char reg, unsigned int data){
 }
 
 void ADE7758::write24(char reg, unsigned long data){
-        //c heeft geen unsigned floats, als er een negatief nummer door wordt
-        //gegeven zitten we dus met een ongewenste sign bit op de MSB.
         //METHODE NOG NIET GETEST
         enable();
         unsigned char data0=0,data1=0,data2=0;
