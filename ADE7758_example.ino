@@ -7,7 +7,7 @@ void setup(){
   Serial.begin(9600);
   myADE.begin();
   
-  myADE.write16(0x,);
+  //myADE.write16(0x,);
 }
 
 void loop(){

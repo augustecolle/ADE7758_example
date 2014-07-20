@@ -116,6 +116,31 @@ void ADE7758::write16(char reg, unsigned int data){
         disable();
 }
 
+void ADE7758::write24(char reg, unsigned long data){
+        //c heeft geen unsigned floats, als er een negatief nummer door wordt
+        //gegeven zitten we dus met een ongewenste sign bit op de MSB.
+        //METHODE NOG NIET GETEST
+        enable();
+        unsigned char data0=0,data1=0,data2=0;
+
+        reg |= WRITE;
+
+        data0 = (unsigned char)data;
+        data1 = (unsigned char)(data>>8);
+        data2 = (unsigned char)(data>>16);
+        //float = 32 bit, met de 8 MSBs van data wordt dus geen rekening
+        //gehouden
+        delayMicroseconds(50);
+        SPI.transfer((unsigned char)reg);    
+        delayMicroseconds(50);    
+        SPI.transfer((unsigned char)data2);
+        delayMicroseconds(50);
+        SPI.transfer((unsigned char)data1);  
+        delayMicroseconds(50);
+        SPI.transfer((unsigned char)data0);
+        delayMicroseconds(50);
+        disable();
+}
 
 //To minimize noise synchronize the reading with the zero crossing
 long ADE7758::getVRMS(char phase){
@@ -138,14 +163,24 @@ long ADE7758::getVRMS(char phase){
 }
 
 
-void ADE7758::calibrateVOffset(char phase){
+void ADE7758::calibrateOffset(char phase){
     //zie datasheet pagina 55    
+    write8(LCYCMODE, 0x38); //zero crossing voor elke fase
+    write24(MASK, 0xE00); //enable de interrupts gegenereerd wanneer er een zero crossing is
+
     int Vnom = 230; //[V] aan te passen per toepassing
     int Vfsc = 400; //[V] full scale spanning
     int Vmin = Vfsc/20;
     int VRMSmin = 0; //[V] meting bij Vmin
     int VRMSnom = 0; //[V] meting bij Vnom
 
-    int offset = 1/64*(Vnom*VRMSmin-Vmin*VRMSnom)/(Vmin-Vnom);
-    write8(AVRMSOS+phase, offset);
+    int Itest = 10; //[A] aan te passen per calibratie
+    int IRMStest = 0; //[A] meting bij Itest
+    int IRMStestmin = 0; //[A] meting bij Itest/500
+
+    int Voffset = 1/64*(Vnom*VRMSmin-Vmin*VRMSnom)/(Vmin-Vnom);
+    int Ioffset = 1/16384*(Itest*Itest*IRMStest*IRMStest - (Itest*Itest/250000)*IRMStestmin*IRMStestmin)/((1-500*500)*Itest*Itest/250000);
+    
+    write8(AVRMSOS+phase, Voffset); //registers volgen op elkaar, dus +phase selecteerd automatisch het juiste register
+    write8(AIRMSOS+phase, Ioffset);
 }

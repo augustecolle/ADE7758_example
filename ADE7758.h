@@ -11,6 +11,9 @@
 #define AVRMSOS 0x33 //voor calibratie
 #define BVRMSOS 0x34
 #define CVRMSOS 0x35
+#define AIRMSOS 0x36
+#define BIRMSOS 0x37
+#define CIRMSOS 0x38
 
 #define LCYCMODE 0x17 //The functionalities involved the line-cycle accumulation mode in the ADE7758 are defined by writing to the LCYCMODE register. Voor de zerocrossings te tellen moet de ZX per fase hoog gezet worden van dit register (voor alle fases 0x38)
 #define MASK 0x18 //When an interrupt event occurs in the ADE7758, the IRQ logic output goes active low if the mask bit for this event is Logic 1 in the MASK register.
@@ -40,13 +43,14 @@ class ADE7758{
     //write methodes, later ook in private plaatsen
     void write8(char reg, unsigned char data);
     void write16(char reg, unsigned int data);
+    void write24(char reg, unsigned long data);
 	
   private:
     int CS;
 
     void enable();
     void disable();
-    void calibrateVOffset(char phase);
+    void calibrateOffset(char phase);
     long getInterruptStatus();
     long getResetInterruptStatus();
 };
