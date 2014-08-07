@@ -174,9 +174,9 @@ long ADE7758::getIRMS(char phase){
                             return -1;
             }
         }
-        VRMS += read24bits(AIRMS+phase);
+        IRMS += read24bits(AIRMS+phase);
     }
-    return VRMS/N; //Fase afhankelijk gemaakt, register AVRMS+0,1 of 2.
+    return IRMS/N; //Fase afhankelijk gemaakt, register AVRMS+0,1 of 2.
 }
 
 void ADE7758::calibrateOffset(char phase){
