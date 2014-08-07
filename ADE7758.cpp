@@ -2,6 +2,7 @@
 #include <SPI.h>
 #include "ADE7758.h"
 #include <avr/wdt.h>
+#include "math.h"
 
 ADE7758::ADE7758(int _CS){
 	CS = _CS;
@@ -176,7 +177,7 @@ long ADE7758::getIRMS(char phase){
         }
         IRMS += read24bits(AIRMS+phase);
     }
-    return IRMS/N; //Fase afhankelijk gemaakt, register AVRMS+0,1 of 2.
+    return IRMS/N; //Fase afhankelijk gemaakt, register AIRMS+0,1 of 2.
 }
 
 void ADE7758::calibrateOffset(char phase){
@@ -184,7 +185,7 @@ void ADE7758::calibrateOffset(char phase){
     write8(LCYCMODE, 0x38); //zero crossing voor elke fase
     write24(MASK, 0xE00); //enable de interrupts gegenereerd wanneer er een zero crossing is
 
-    int Vnom = 400/Math.sqrt(3); //[V] aan te passen per toepassing
+    int Vnom = 400/math.sqrt(3); //[V] aan te passen per toepassing
     int Vfsc = 260; //[V] full scale spanning, we meten fasespanningen dus 230V +- 23V + marge
     int Vmin = Vfsc/20;
     int VRMSmin = 82246; //[-] meting bij Vmin, rauwe data
