@@ -160,17 +160,35 @@ long ADE7758::getVRMS(char phase){
     return VRMS/N; //Fase afhankelijk gemaakt, register AVRMS+0,1 of 2.
 }
 
+long ADE7758::getIRMS(char phase){
+    int N = 20; //aantal lezingen voor gemiddelde waarde
+    unsigned long IRMS = 0;
+    long lastupdate = 0;
+    for (int i = 0; i<N; i++){
+        getResetInterruptStatus(); //clear interrupts
+        lastupdate = millis();
+        while(!(getInterruptStatus() & (ZXA<<phase))){ //Fase afhankelijk gemaakt, mask shiften met 0,1 of 2
+            //Wait for the selected interrupt (zero crossing interrupt)
+            if((millis()-lastupdate)>100){
+                Serial.println("IRMS Timeout: NaN");
+                            return -1;
+            }
+        }
+        VRMS += read24bits(AIRMS+phase);
+    }
+    return VRMS/N; //Fase afhankelijk gemaakt, register AVRMS+0,1 of 2.
+}
 
 void ADE7758::calibrateOffset(char phase){
     //zie datasheet pagina 55    
     write8(LCYCMODE, 0x38); //zero crossing voor elke fase
     write24(MASK, 0xE00); //enable de interrupts gegenereerd wanneer er een zero crossing is
 
-    int Vnom = 230; //[V] aan te passen per toepassing
-    int Vfsc = 400; //[V] full scale spanning
+    int Vnom = 400/Math.sqrt(3); //[V] aan te passen per toepassing
+    int Vfsc = 260; //[V] full scale spanning, we meten fasespanningen dus 230V +- 23V + marge
     int Vmin = Vfsc/20;
-    int VRMSmin = 0; //[V] meting bij Vmin
-    int VRMSnom = 0; //[V] meting bij Vnom
+    int VRMSmin = 82246; //[-] meting bij Vmin, rauwe data
+    int VRMSnom = 1134765; //[-] meting bij Vnom, rauwe data
 
     int Itest = 10; //[A] aan te passen per calibratie
     int IRMStest = 0; //[A] meting bij Itest

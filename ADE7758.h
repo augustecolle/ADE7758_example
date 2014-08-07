@@ -5,6 +5,9 @@
 
 #define WRITE 0x80 //0x80 = b10000000 voor te schrijven moet BT7 1 zijn
 
+#define AIRMS 0x0A
+#define BIRMS 0x0B
+#define CIRMS 0x0C
 #define AVRMS 0x0D
 #define BVRMS 0x0E
 #define CVRMS 0x0F
@@ -34,6 +37,7 @@ class ADE7758{
     ADE7758(int _CS);
     void begin();
     long getVRMS(char phase);
+    long getIRMS(char phase);
     
     //Later in private te plaatsen
     unsigned char read8bits(char reg);
